@@ -1,9 +1,11 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sửa Xe Dương Anh - Quản Lý & Xuất Hóa Đơn</title>
+    <!-- Thư viện chụp ảnh html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background: #eef2f7; margin: 0; padding: 10px; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #d9534f; }
@@ -26,12 +28,17 @@ DOCTYPE html>
         .btn-warning:hover { background: #e68900; }
         .btn-danger { background: #dc3545; }
         .btn-danger:hover { background: #c82333; }
+        .btn-info { background: #17a2b8; color: #fff; }
+        .btn-info:hover { background: #138496; }
         .table-box { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; font-size: 14px; }
         .table-box th, .table-box td { border: 1px solid #e0e0e0; padding: 9px; text-align: left; }
         .table-box th { background: #343a40; color: #fff; }
         .table-box tr:nth-child(even) { background: #f9f9f9; }
         .total-box { background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; text-align: right; font-size: 20px; color: #2e7d32; font-weight: bold; margin-top: 15px; }
         .section-title { font-size: 15px; color: #1976d2; border-bottom: 2px solid #1976d2; padding-bottom: 5px; margin-top: 22px; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
+
+        /* Khung hóa đơn mẫu chuẩn để chụp ảnh nét */
+        #billPreviewArea { display: none; background: #fff; padding: 20px; width: 400px; box-sizing: border-box; font-family: Arial, sans-serif; color: #000; }
     </style>
 </head>
 <body>
@@ -89,8 +96,41 @@ Công thợ 100"></textarea>
         TỔNG CỘNG: <span id="grandTotal">0</span> đ
     </div>
 
-    <button class="btn-warning" onclick="exportBillFile()" style="margin-top: 12px;">📄 Tải Về / Xuất Hóa Đơn (.txt)</button>
+    <button class="btn-info" onclick="exportBillImage()" style="margin-top: 12px;">📸 Tải Ảnh Hóa Đơn HD (.png)</button>
+    <button class="btn-warning" onclick="exportBillFile()" style="margin-top: 8px;">📄 Tải Về File Văn Bản (.txt)</button>
     <button class="btn-danger" onclick="clearCart()" style="margin-top: 8px;">🔄 Làm Mới / Hóa Đơn Mới</button>
+</div>
+
+<!-- KHUNG ẨN ĐỂ CHỤP ẢNH HÓA ĐƠN HD -->
+<div id="billPreviewArea">
+    <div style="text-align:center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 10px;">
+        <h3 style="margin:0; color: #d9534f; font-size: 20px; text-transform:uppercase;">SỬA XE DƯƠNG ANH</h3>
+        <div style="font-size: 12px; font-weight:bold; margin-top: 4px;">ĐC: Núi Sập, Thoại Sơn, An Giang</div>
+        <div style="font-size: 12px; font-weight:bold;">SĐT: 0942.313.001</div>
+        <div style="font-size: 15px; font-weight:bold; margin-top: 8px; text-transform: uppercase; background: #eee; padding: 4px;">HÓA ĐƠN THANH TOÁN</div>
+    </div>
+    <div style="font-size: 12px; margin-bottom: 8px; line-height: 1.5;">
+        <b>Ngày:</b> <span id="imgDate"></span><br>
+        <b>Khách hàng / Tên xe:</b> <span id="imgCarName"></span><br>
+        <b>Biển số xe:</b> <span id="imgCarPlate"></span>
+    </div>
+    <table style="width:100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px;">
+        <thead>
+            <tr style="background: #333; color: #fff;">
+                <th style="padding: 6px; border: 1px solid #333; text-align:left;">Nội dung</th>
+                <th style="padding: 6px; border: 1px solid #333; text-align:center; width:30px;">SL</th>
+                <th style="padding: 6px; border: 1px solid #333; text-align:right; width:75px;">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody id="imgTableBody">
+        </tbody>
+    </table>
+    <div style="text-align: right; font-size: 14px; font-weight: bold; border-top: 2px solid #333; padding-top: 8px; margin-bottom: 15px;">
+        TỔNG CỘNG: <span id="imgGrandTotal"></span> VNĐ
+    </div>
+    <div style="text-align: center; font-size: 12px; font-style: italic; color: #555; border-top: 1px dashed #ccc; padding-top: 8px;">
+        Cảm ơn quý khách và hẹn gặp lại!
+    </div>
 </div>
 
 <script>
@@ -170,6 +210,54 @@ Công thợ 100"></textarea>
 
         tbody.innerHTML = html;
         document.getElementById('grandTotal').innerText = total.toLocaleString('vi-VN');
+    }
+
+    // XUẤT ẢNH HD NÉT CĂNG
+    function exportBillImage() {
+        if (cart.length === 0) {
+            alert("Chưa có món hàng nào trong giỏ để xuất hóa đơn!");
+            return;
+        }
+
+        let carName = document.getElementById('carName').value || "Không rõ";
+        let carPlate = document.getElementById('carPlate').value || "Không rõ";
+        let now = new Date();
+        let dateStr = now.toLocaleDateString('vi-VN') + ' - ' + now.toLocaleTimeString('vi-VN');
+
+        document.getElementById('imgDate').innerText = dateStr;
+        document.getElementById('imgCarName').innerText = carName;
+        document.getElementById('imgCarPlate').innerText = carPlate;
+
+        let imgHtml = "";
+        let grandTotal = 0;
+        cart.forEach(item => {
+            let sub = item.qty * item.price;
+            grandTotal += sub;
+            let displayName = item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
+            imgHtml += `<tr>
+                <td style="padding: 6px; border: 1px solid #ddd;">${displayName}</td>
+                <td style="padding: 6px; border: 1px solid #ddd; text-align:center;">${item.qty}</td>
+                <td style="padding: 6px; border: 1px solid #ddd; text-align:right;">${sub.toLocaleString('vi-VN')}</td>
+            </tr>`;
+        });
+
+        document.getElementById('imgTableBody').innerHTML = imgHtml;
+        document.getElementById('imgGrandTotal').innerText = grandTotal.toLocaleString('vi-VN');
+
+        let previewArea = document.getElementById('billPreviewArea');
+        previewArea.style.display = 'block';
+
+        // Chụp ảnh bằng html2canvas với độ phân giải cao (scale: 2 cho sắc nét)
+        html2canvas(previewArea, { scale: 2 }).then(canvas => {
+            previewArea.style.display = 'none';
+            let link = document.createElement('a');
+            link.download = `HoaDon_${carPlate.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }).catch(err => {
+            previewArea.style.display = 'none';
+            alert("Lỗi tạo ảnh: " + err);
+        });
     }
 
     function exportBillFile() {
