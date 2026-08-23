@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+            <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -38,7 +39,7 @@
 
 <div class="container">
     <h2>🔧 Sửa Xe Dương Anh</h2>
-    <div class="sub-title">HỆ THỐNG TÍNH TIỀN & XUẤT HÓA ĐƠN CHUYÊN NGHIỆP</div>
+    <div class="sub-title">Núi Sập, Thoại Sơn, An Giang</div>
 
     <button class="btn-success" onclick="addToCartDirect()">⚡ Thêm Nhanh Vào Giỏ</button>
 
@@ -186,6 +187,7 @@ Công thợ 100"></textarea>
 
         let text = `====================================\n`;
         text += `        SỬA XE DƯƠNG ANH            \n`;
+        text += `    Địa chỉ: Núi Sập, Thoại Sơn     \n`;
         text += `    HÓA ĐƠN THANH TOÁN DỊCH VỤ      \n`;
         text += `====================================\n`;
         text += `Ngày: ${dateStr} - Giờ: ${timeStr}\n`;
@@ -198,13 +200,18 @@ Công thợ 100"></textarea>
         cart.forEach((item, index) => {
             let sub = item.qty * item.price;
             grandTotal += sub;
-            text += `${index + 1}. ${item.name} x ${item.qty} = ${sub.toLocaleString('vi-VN')} đ\n`;
+            // Nếu số lượng là 1 thì chỉ hiện tên và giá, từ 2 trở lên mới hiện x SL
+            if (item.qty > 1) {
+                text += `${index + 1}. ${item.name} x ${item.qty} = ${sub.toLocaleString('vi-VN')} đ\n`;
+            } else {
+                text += `${index + 1}. ${item.name} = ${sub.toLocaleString('vi-VN')} đ\n`;
+            }
         });
 
         text += `------------------------------------\n`;
         text += `TỔNG CỘNG: ${grandTotal.toLocaleString('vi-VN')} VNĐ\n`;
         text += `====================================\n`;
-        text += `       Cảm ơn quý khách đã ủng hộ!   \n`;
+        text += `     Cảm ơn quý khách đã ủng hộ!    \n`;
 
         let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
         let url = URL.createObjectURL(blob);
