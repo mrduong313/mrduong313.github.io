@@ -1,1 +1,230 @@
 
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sửa Xe Dương Anh - Quản Lý & Xuất Hóa Đơn</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 10px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #d9534f; margin-bottom: 2px; }
+        .sub-title { text-align: center; color: #666; font-size: 13px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 3px; font-weight: bold; color: #444; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 5px; font-size: 15px; }
+        textarea { resize: vertical; height: 80px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px dashed #ccc; }
+        .checkbox-group input { width: 20px; height: 20px; }
+        button { width: 100%; background: #007bff; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        button:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
+        .table-box { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; font-size: 14px; }
+        .table-box th, .table-box td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table-box th { background: #f1f1f1; color: #333; }
+        .total-box { background: #e9ecef; padding: 12px; border-radius: 5px; text-align: right; font-size: 18px; color: #d9534f; font-weight: bold; margin-top: 15px; }
+        .section-title { font-size: 16px; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; margin-top: 20px; margin-bottom: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Sửa Xe Dương Anh</h2>
+    <div class="sub-title">Tính Tiền & Quản Lý Dịch Vụ Sửa Chữa</div>
+
+    <button class="btn-success" onclick="addToCartDirect()">Thêm vào giỏ</button>
+
+    <div class="section-title" style="margin-top:15px;">Nhập nhanh từ danh sách</div>
+
+    <div class="form-group">
+        <label>Tên xe</label>
+        <input type="text" id="carName" placeholder="Ví dụ: Honda Vision...">
+    </div>
+
+    <div class="form-group">
+        <label>Biển số xe</label>
+        <input type="text" id="carPlate" placeholder="Ví dụ: 67B1-123.45...">
+    </div>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="shortPrice" onchange="toggleShortPrice()">
+        <label for="shortPrice" style="margin:0; cursor:pointer;">Giá rút gọn (Ví dụ: nhập 10 là 10.000đ)</label>
+    </div>
+
+    <div class="form-group">
+        <label>Cú pháp nhập:</label>
+        <textarea id="bulkInput" placeholder="Ví dụ:
+Nhớt máy 1 120000 (Tên - SL - Giá)
+Bugi 45000 (Tên - Giá -> mặc định SL=1)
+Công thợ 50000"></textarea>
+    </div>
+
+    <button onclick="addAllFromText()">Thêm toàn bộ</button>
+
+    <div class="section-title">Danh sách mặt hàng</div>
+    <table class="table-box">
+        <thead>
+            <tr>
+                <th>Tên Hàng</th>
+                <th>SL</th>
+                <th>Đơn Giá</th>
+                <th>Thành Tiền</th>
+            </tr>
+        </thead>
+        <tbody id="cartTableBody">
+            <tr><td colspan="4" style="text-align:center; color:#777;">Chưa có mặt hàng nào</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">Thanh Toán & Xuất Hóa Đơn</div>
+    <div class="total-box">
+        Tổng Cộng: <span id="grandTotal">0</span> đ
+    </div>
+
+    <button class="btn-warning" onclick="exportBillFile()" style="margin-top: 10px;">📥 Xuất Hóa Đơn Ra Tệp Tin (.txt)</button>
+    <button class="btn-success" onclick="clearCart()" style="background:#dc3545; margin-top: 8px;">Làm Mới / Hóa Đơn Mới</button>
+</div>
+
+<script>
+    let cart = [];
+
+    function toggleShortPrice() {
+        // Tùy chọn giá rút gọn nếu cần xử lý nhanh hệ số hàng nghìn
+    }
+
+    function addAllFromText() {
+        let text = document.getElementById('bulkInput').value.trim();
+        if (!text) {
+            alert("Vui lòng nhập danh sách vào ô trống!");
+            return;
+        }
+
+        let isShort = document.getElementById('shortPrice').checked;
+        let lines = text.split('\n');
+        
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            let parts = line.split(/\s+/);
+            let name = "";
+            let qty = 1;
+            let price = 0;
+
+            if (parts.length >= 3 && !isNaN(parts[parts.length - 1]) && !isNaN(parts[parts.length - 2])) {
+                // Dạng: Tên hàng + Số lượng + Giá (Ví dụ: Nhớt 1 120000)
+                price = parseFloat(parts[parts.length - 1]);
+                qty = parseInt(parts[parts.length - 2]);
+                name = parts.slice(0, parts.length - 2).join(" ");
+            } else if (parts.length >= 2 && !isNaN(parts[parts.length - 1])) {
+                // Dạng: Tên hàng + Giá (Ví dụ: Bugi 45000 -> SL mặc định = 1)
+                price = parseFloat(parts[parts.length - 1]);
+                qty = 1;
+                name = parts.slice(0, parts.length - 1).join(" ");
+            } else {
+                name = line;
+                price = 0;
+            }
+
+            if (isShort) {
+                price = price * 1000; // Quy đổi giá rút gọn nếu chọn
+            }
+
+            if (name) {
+                cart.push({ name: name, qty: qty, price: price });
+            }
+        });
+
+        document.getElementById('bulkInput').value = "";
+        renderCart();
+    }
+
+    function addToCartDirect() {
+        addAllFromText();
+    }
+
+    function renderCart() {
+        let tbody = document.getElementById('cartTableBody');
+        if (cart.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#777;">Chưa có mặt hàng nào</td></tr>`;
+            document.getElementById('grandTotal').innerText = "0";
+            return;
+        }
+
+        let html = "";
+        let total = 0;
+        cart.forEach(item => {
+            let subtotal = item.qty * item.price;
+            total += subtotal;
+            html += `<tr>
+                <td>${item.name}</td>
+                <td>${item.qty}</td>
+                <td>${item.price.toLocaleString('vi-VN')}</td>
+                <td><b>${subtotal.toLocaleString('vi-VN')}</b></td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = html;
+        document.getElementById('grandTotal').innerText = total.toLocaleString('vi-VN');
+    }
+
+    function exportBillFile() {
+        if (cart.length === 0) {
+            alert("Chưa có món hàng nào trong giỏ để xuất hóa đơn!");
+            return;
+        }
+
+        let carName = document.getElementById('carName').value || "Không rõ";
+        let carPlate = document.getElementById('carPlate').value || "Không rõ";
+        let now = new Date();
+        let dateStr = now.toLocaleDateString('vi-VN');
+        let timeStr = now.toLocaleTimeString('vi-VN');
+
+        let text = `====================================\n`;
+        text += `        SỬA XE DƯƠNG ANH            \n`;
+        text += `    HÓA ĐƠN THANH TOÁN DỊCH VỤ      \n`;
+        text += `====================================\n`;
+        text += `Ngày: ${dateStr} - Giờ: ${timeStr}\n`;
+        text += `Tên xe: ${carName}\n`;
+        text += `Biển số: ${carPlate}\n`;
+        text += `------------------------------------\n`;
+        text += `CHI TIẾT HÓA ĐƠN:\n`;
+
+        let grandTotal = 0;
+        cart.forEach((item, index) => {
+            let sub = item.qty * item.price;
+            grandTotal += sub;
+            text += `${index + 1}. ${item.name} x ${item.qty} = ${sub.toLocaleString('vi-VN')} đ\n`;
+        });
+
+        text += `------------------------------------\n`;
+        text += `TỔNG CỘNG: ${grandTotal.toLocaleString('vi-VN')} VNĐ\n`;
+        text += `====================================\n`;
+        text += `       Cảm ơn quý khách đã ủng hộ!   \n`;
+
+        let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = `HoaDon_${carPlate.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function clearCart() {
+        if (confirm("Làm mới để tính hóa đơn xe tiếp theo?")) {
+            cart = [];
+            document.getElementById('carName').value = "";
+            document.getElementById('carPlate').value = "";
+            renderCart();
+        }
+    }
+</script>
+
+</body>
+</html>
