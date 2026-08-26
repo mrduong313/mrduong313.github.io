@@ -3,143 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hóa Đơn Sửa Chữa - Văn Hạnh (Tuôl)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        .invoice-box {
-            max-width: 800px;
-            margin: auto;
-            padding: 30px;
-            border: 1px solid #eee;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-            background-color: #fff;
-        }
-        .invoice-header {
-            text-align: center;
-            border-bottom: 2px solid #d9534f;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        .invoice-header h2 {
-            margin: 0;
-            color: #d9534f;
-            font-size: 18px;
-        }
-        .invoice-header h1 {
-            margin: 5px 0;
-            color: #d9534f;
-            font-size: 26px;
-        }
-        .invoice-header p {
-            margin: 3px 0;
-            color: #555;
-            font-size: 14px;
-        }
-        .invoice-info {
-            margin-bottom: 20px;
-        }
-        .invoice-info table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .invoice-info td {
-            padding: 5px;
-            font-size: 14px;
-        }
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .items-table th, .items-table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-            font-size: 14px;
-        }
-        .items-table th {
-            background-color: #f8f8f8;
-            color: #333;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .invoice-footer {
-            text-align: center;
-            margin-top: 30px;
-            font-style: italic;
-            color: #777;
-            font-size: 14px;
-        }
-    </style>
+    <title>Sửa Xe Văn Hạnh (Tuôl) - Hóa Đơn</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas for exporting image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 font-sans pb-12">
 
-<div class="invoice-box">
-    <!-- Phần đầu hóa đơn cập nhật thông tin chuẩn từ bảng hiệu -->
-    <div class="invoice-header">
-        <h2>SỬA XE CHUYÊN NGHIỆP</h2>
-        <h1>VĂN HẠNH (TUÔL)</h1>
-        <p>SỬA CHỮA, BẢO DƯỠNG, TÂN TRANG, PHỤ TÙNG CHÍNH HÃNG</p>
-        <p>Địa chỉ: Tổ 7, P. Thới Sơn, TX. Tịnh Biên, An Giang</p>
-        <p>Điện thoại: 0988 422 736 - 0835 355 551</p>
+    <!-- Container chính -->
+    <div id="invoice-container" class="max-w-md mx-auto bg-white shadow-lg min-h-screen flex flex-col justify-between p-4 sm:p-6 my-0 sm:my-4 sm:rounded-2xl">
+        
+        <div>
+            <!-- Header Tiệm VĂN HẠNH (TUÔL) -->
+            <div class="text-center border-b-2 border-red-500 pb-4 mb-4">
+                <div class="inline-block bg-red-100 text-red-600 p-2 rounded-full mb-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-black text-red-600 tracking-wider">VĂN HẠNH (TUÔL)</h1>
+                <p class="text-xs text-slate-600 font-medium">Tổ 7, P. Thới Sơn, TX. Tịnh Biên, An Giang</p>
+                <p class="text-xs text-slate-600 font-semibold mt-0.5">ĐT: 0988.422.736 - 0835.355.551</p>
+            </div>
+
+            <!-- Khu vực nhập liệu thông tin xe & dịch vụ -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4 shadow-sm">
+                <h2 class="text-xs font-bold text-slate-700 uppercase mb-2 flex items-center justify-between">
+                    <span>Nhập Nhanh Từ Danh Sách</span>
+                </h2>
+                
+                <div class="space-y-2 mb-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Tên xe:</label>
+                        <input type="text" id="customer-bike" placeholder="Ví dụ: Air Blade của anh Danh..." class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:outline-none focus:border-red-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Biển số xe:</label>
+                        <input type="text" id="customer-plate" placeholder="Ví dụ: 67B1-123.45..." class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:outline-none focus:border-red-500 bg-white">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="flex items-center text-xs text-slate-700 cursor-pointer select-none">
+                        <input type="checkbox" id="short-price" checked class="w-3.5 h-3.5 text-red-600 rounded border-slate-300 focus:ring-red-500 mr-2">
+                        <span>Giá rút gọn (Ví dụ: nhập 120 là 120.000đ)</span>
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Cú pháp nhập danh sách:</label>
+                    <textarea id="quick-input-text" rows="3" placeholder="Ví dụ:&#10;Thay nhớt máy 1 120 (Tên - SL - Giá)&#10;Vá vỏ bị đinh 1 30&#10;Bugí 45 (Tên - Giá -> tự hiểu SL=1)&#10;Công thợ 100" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:outline-none focus:border-red-500 bg-white font-mono"></textarea>
+                </div>
+
+                <button onclick="addItemsFromText()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold text-xs py-2 px-4 rounded-lg shadow transition flex items-center justify-center space-x-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Thêm Toàn Bộ Vào Bảng</span>
+                </button>
+            </div>
+
+            <!-- Bảng danh sách hàng đã chọn -->
+            <div class="mb-4">
+                <h3 class="text-xs font-bold text-slate-700 uppercase mb-2">Danh Sách Mặt Hàng Đã Chọn</h3>
+                <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-white text-[11px]">
+                                <th class="p-2">Tên Hàng / Dịch Vụ</th>
+                                <th class="p-2 text-center w-12">SL</th>
+                                <th class="p-2 text-right w-20">Đơn Giá</th>
+                                <th class="p-2 text-right w-24">Thành Tiền</th>
+                                <th class="p-2 text-center w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="item-list" class="divide-y divide-slate-100 text-xs">
+                            <tr>
+                                <td colspan="5" class="p-4 text-center text-slate-400 italic">Chưa có mặt hàng nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần Thanh Toán & Nút bấm -->
+        <div class="mt-auto pt-4 border-t border-slate-200">
+            <div class="bg-slate-900 text-white rounded-xl p-3 mb-3 flex items-center justify-between shadow-inner">
+                <span class="text-xs uppercase tracking-wider font-bold">Tổng Cộng:</span>
+                <span id="grand-total" class="text-lg font-black text-amber-400">0 đ</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="exportInvoiceImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center space-x-1 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span>Tạo Ảnh Hóa Đơn (.png)</span>
+                </button>
+                <button onclick="resetInvoice()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow flex items-center justify-center space-x-1 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span>Làm Mới / Hóa Đơn Mới</span>
+                </button>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Thông tin khách hàng / ngày tháng -->
-    <div class="invoice-info">
-        <table>
-            <tr>
-                <td><strong>Họ tên khách hàng:</strong> ...................................................</td>
-                <td><strong>Ngày:</strong> ...../...../2026</td>
-            </tr>
-            <tr>
-                <td colspan="2"><strong>Biển số xe:</strong> ...................................................................................................</td>
-            </tr>
-        </table>
-    </div>
+    <!-- JavaScript logic -->
+    <script>
+        let items = [];
 
-    <!-- Bảng kê chi tiết dịch vụ/phụ tùng (Đã thêm mục vá vỏ / bị đinh) -->
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>Nội dung (Phụ tùng / Dịch vụ)</th>
-                <th>Số lượng</th>
-                <th class="text-right">Thành tiền (VNĐ)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>Vá vỏ (Bị đinh 2 mục)</td>
-                <td>1</td>
-                <td class="text-right">30.000</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Thay nhớt chính hãng</td>
-                <td>1</td>
-                <td class="text-right">120.000</td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" class="text-right"><strong>Tổng cộng:</strong></td>
-                <td class="text-right"><strong>150.000</strong></td>
-            </tr>
-        </tfoot>
-    </table>
+        function formatMoney(amount) {
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ";
+        }
 
-    <!-- Lời cảm ơn -->
-    <div class="invoice-footer">
-        <p>Cảm ơn quý khách đã tin tưởng và ủng hộ cửa hàng!</p>
-    </div>
-</div>
+        function addItemsFromText() {
+            const text = document.getElementById('quick-input-text').value.trim();
+            if (!text) return;
 
+            const lines = text.split('\n');
+            const isShort = document.getElementById('short-price').checked;
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line) return;
+
+                const parts = line.split(/\s+/);
+                if (parts.length < 2) return;
+
+                let priceStr = parts[parts.length - 1];
+                let price = parseFloat(priceStr.replace(/\./g, ''));
+                if (isNaN(price)) return;
+
+                if (isShort && price < 10000) {
+                    price = price * 1000;
+                }
+
+                let qty = 1;
+                let nameParts = parts.slice(0, parts.length - 1);
+
+                if (nameParts.length >= 1) {
+                    let possibleQty = parseInt(nameParts[nameParts.length - 1]);
+                    if (!isNaN(possibleQty) && possibleQty > 0 && possibleQty < 100 && nameParts.length > 1) {
+                        qty = possibleQty;
+                        nameParts.pop();
+                    }
+                }
+
+                let name = nameParts.join(' ');
+                if (!name) name = "Sản phẩm/Dịch vụ";
+
+                items.push({
+                    name: name,
+                    qty: qty,
+                    price: price
+                });
+            });
+
+            document.getElementById('quick-input-text').value = '';
+            renderTable();
+        }
+
+        function removeItem(index) {
+            items.splice(index, 1);
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('item-list');
+            const totalEl = document.getElementById('grand-total');
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Chưa có mặt hàng nào</td></tr>`;
+                totalEl.textContent = "0 đ";
+                return;
+            }
+
+            let html = '';
+            let grandTotal = 0;
+
+            items.forEach((item, index) => {
+                let totalItem = item.qty * item.price;
+                grandTotal += totalItem;
+                html += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2 font-medium text-slate-800">${item.name}</td>
+                        <td class="p-2 text-center text-slate-600">${item.qty}</td>
+                        <td class="p-2 text-right text-slate-600">${formatMoney(item.price)}</td>
+                        <td class="p-2 text-right font-bold text-slate-800">${formatMoney(totalItem)}</td>
+                        <td class="p-2 text-center">
+                            <button onclick="removeItem(${index})" class="text-rose-500 hover:text-rose-700 font-bold">&times;</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            totalEl.textContent = formatMoney(grandTotal);
+        }
+
+        function resetInvoice() {
+            if (confirm('Bạn có chắc muốn làm mới hóa đơn này?')) {
+                items = [];
+                document.getElementById('customer-bike').value = '';
+                document.getElementById('customer-plate').value = '';
+                document.getElementById('quick-input-text').value = '';
+                renderTable();
+            }
+        }
+
+        function exportInvoiceImage() {
+            const container = document.getElementById('invoice-container');
+            html2canvas(container, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Hoa-Don-Van-Hanh-Tuol.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
 </body>
 </html>
