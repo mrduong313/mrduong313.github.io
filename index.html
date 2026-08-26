@@ -273,3 +273,272 @@ Công thợ 100"></textarea>
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Văn Hạnh (Tuốt) - Quản Lý & Xuất Hóa Đơn</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #eef2f7; margin: 0; padding: 10px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #d9534f; }
+        h2 { text-align: center; color: #d9534f; margin-bottom: 2px; font-size: 24px; text-transform: uppercase; }
+        .sub-title { text-align: center; color: #555; font-size: 13px; margin-bottom: 15px; font-weight: bold; line-height: 1.4; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 3px; font-weight: bold; color: #2c3e50; font-size: 14px; }
+        input, textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; background: #fafafa; }
+        input:focus, textarea:focus { border-color: #007bff; outline: none; background: #fff; }
+        textarea { resize: vertical; height: 85px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff8e1; padding: 10px; border-radius: 6px; border: 1px dashed #ffa000; }
+        .checkbox-group input { width: 20px; height: 20px; }
+        button { width: 100%; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        button:active { transform: scale(0.98); }
+        .btn-primary { background: #007bff; }
+        .btn-primary:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        .table-box { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; font-size: 14px; }
+        .table-box th, .table-box td { border: 1px solid #e0e0e0; padding: 9px; text-align: left; }
+        .table-box th { background: #343a40; color: #fff; }
+        .table-box tr:nth-child(even) { background: #f9f9f9; }
+        .total-box { background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; text-align: right; font-size: 20px; color: #2e7d32; font-weight: bold; margin-top: 15px; }
+        .section-title { font-size: 15px; color: #1976d2; border-bottom: 2px solid #1976d2; padding-bottom: 5px; margin-top: 22px; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
+
+        /* Khu vực hiển thị kết quả ảnh */
+        #resultContainer { margin-top: 15px; text-align: center; display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
+        #resultImage { max-width: 100%; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .instruction-text { font-size: 13px; color: #d9534f; font-weight: bold; margin-bottom: 8px; }
+
+        /* Khung render ẩn để chụp ảnh */
+        #billPreviewArea { 
+            position: absolute; left: -9999px; top: -9999px;
+            background: #fff; 
+            padding: 20px; 
+            width: 400px; 
+            box-sizing: border-box; 
+            font-family: Arial, sans-serif; 
+            color: #000; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔧 Văn Hạnh (Tuốt)</h2>
+    <div class="sub-title">Núi Sập, Thoại Sơn, An Giang<br>SĐT: 0942.313.001</div>
+
+    <div class="section-title">Nhập Nhanh Từ Danh Sách</div>
+
+    <div class="form-group">
+        <label style="color: #d9534f;">Tên xe:</label>
+        <input type="text" id="carName" placeholder="Ví dụ: Air Blade của anh Danh...">
+    </div>
+
+    <div class="form-group">
+        <label style="color: #d9534f;">Biển số xe:</label>
+        <input type="text" id="carPlate" placeholder="Ví dụ: 67B1-123.45...">
+    </div>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="shortPrice">
+        <label for="shortPrice" style="margin:0; cursor:pointer; color: #b78103; font-weight: bold;">Giá rút gọn (Ví dụ: nhập 120 là 120.000đ)</label>
+    </div>
+
+    <div class="form-group">
+        <label>Cú pháp nhập danh sách:</label>
+        <textarea id="bulkInput" placeholder="Ví dụ:
+Thay nhớt máy 1 120 (Tên - SL - Giá)
+Bugi 45 (Tên - Giá -> tự hiểu SL=1)
+Công thợ 100"></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="addAllFromText()">📥 Thêm Toàn Bộ Vào Bảng</button>
+
+    <div class="section-title">Danh Sách Mặt Hàng Đã Chọn</div>
+    <table class="table-box">
+        <thead>
+            <tr>
+                <th>Tên Hàng / Dịch Vụ</th>
+                <th style="width: 45px;">SL</th>
+                <th style="width: 85px;">Đơn Giá</th>
+                <th style="width: 95px;">Thành Tiền</th>
+            </tr>
+        </thead>
+        <tbody id="cartTableBody">
+            <tr><td colspan="4" style="text-align:center; color:#888;">Chưa có mặt hàng nào</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">Thanh Toán</div>
+    <div class="total-box">
+        TỔNG CỘNG: <span id="grandTotal">0</span> đ
+    </div>
+
+    <button class="btn-success" onclick="exportBillImage()" style="margin-top: 12px;">📸 Tạo Ảnh Hóa Đơn (.png)</button>
+    
+    <div id="resultContainer">
+        <div class="instruction-text">👇 Nhấn giữ vào ảnh bên dưới để lưu / gửi Zalo:</div>
+        <img id="resultImage" alt="Hóa đơn sửa xe">
+    </div>
+
+    <button class="btn-danger" onclick="clearCart()" style="margin-top: 8px;">🔄 Làm Mới / Hóa Đơn Mới</button>
+</div>
+
+<!-- KHU VỰC ẨN ĐỂ CHỤP ẢNH HÓA ĐƠN -->
+<div id="billPreviewArea">
+    <div style="text-align:center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 10px;">
+        <h3 style="margin:0; color: #d9534f; font-size: 20px; text-transform:uppercase;">Văn Hạnh (Tuốt)</h3>
+        <div style="font-size: 12px; font-weight:bold; margin-top: 4px;">ĐC: Núi Sập, Thoại Sơn, An Giang</div>
+        <div style="font-size: 12px; font-weight:bold;">SĐT: 0942.313.001</div>
+        <div style="font-size: 15px; font-weight:bold; margin-top: 8px; text-transform: uppercase; background: #eee; padding: 4px;">HÓA ĐƠN THANH TOÁN</div>
+    </div>
+    <div style="font-size: 12px; margin-bottom: 8px; line-height: 1.5;">
+        <b>Ngày:</b> <span id="imgDate"></span><br>
+        <b>Khách hàng / Tên xe:</b> <span id="imgCarName"></span><br>
+        <b>Biển số xe:</b> <span id="imgCarPlate"></span>
+    </div>
+    <table style="width:100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px;">
+        <thead>
+            <tr style="background: #333; color: #fff;">
+                <th style="padding: 6px; border: 1px solid #333; text-align:left;">Nội dung</th>
+                <th style="padding: 6px; border: 1px solid #333; text-align:center; width:30px;">SL</th>
+                <th style="padding: 6px; border: 1px solid #333; text-align:right; width:75px;">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody id="imgTableBody">
+        </tbody>
+    </table>
+    <div style="text-align: right; font-size: 14px; font-weight: bold; border-top: 2px solid #333; padding-top: 8px; margin-bottom: 15px;">
+        TỔNG CỘNG: <span id="imgGrandTotal"></span> VNĐ
+    </div>
+    <div style="text-align: center; font-size: 12px; font-style: italic; color: #555; border-top: 1px dashed #ccc; padding-top: 8px;">
+        Cảm ơn quý khách và hẹn gặp lại!
+    </div>
+</div>
+
+<script>
+    let cart = [];
+
+    function addAllFromText() {
+        let text = document.getElementById('bulkInput').value.trim();
+        if (!text) {
+            alert("Vui lòng nhập danh sách vào ô trống!");
+            return;
+        }
+
+        let isShort = document.getElementById('shortPrice').checked;
+        let lines = text.split('\n');
+        
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            let parts = line.split(/\s+/);
+            let name = "";
+            let qty = 1;
+            let price = 0;
+
+            if (parts.length >= 3 && !isNaN(parts[parts.length - 1]) && !isNaN(parts[parts.length - 2])) {
+                price = parseFloat(parts[parts.length - 1]);
+                qty = parseInt(parts[parts.length - 2]);
+                name = parts.slice(0, parts.length - 2).join(" ");
+            } else if (parts.length >= 2 && !isNaN(parts[parts.length - 1])) {
+                price = parseFloat(parts[parts.length - 1]);
+                qty = 1;
+                name = parts.slice(0, parts.length - 1).join(" ");
+            } else {
+                name = line;
+                price = 0;
+            }
+
+            if (isShort) {
+                price = price * 1000;
+            }
+
+            if (name) {
+                cart.push({ name: name, qty: qty, price: price });
+            }
+        });
+
+        document.getElementById('bulkInput').value = "";
+        renderCart();
+    }
+
+    function renderCart() {
+        let tbody = document.getElementById('cartTableBody');
+        if (cart.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">Chưa có mặt hàng nào</td></tr>`;
+            document.getElementById('grandTotal').innerText = "0";
+            return;
+        }
+
+        let html = "";
+        let total = 0;
+        cart.forEach(item => {
+            let subtotal = item.qty * item.price;
+            total += subtotal;
+            html += `<tr>
+                <td>${item.name}</td>
+                <td>${item.qty}</td>
+                <td>${item.price.toLocaleString('vi-VN')}</td>
+                <td><b>${subtotal.toLocaleString('vi-VN')}</b></td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = html;
+        document.getElementById('grandTotal').innerText = total.toLocaleString('vi-VN');
+    }
+
+    function exportBillImage() {
+        if (cart.length === 0) {
+            alert("Chưa có món hàng nào trong giỏ để xuất hóa đơn!");
+            return;
+        }
+
+        let carName = document.getElementById('carName').value || "Không rõ";
+        let carPlate = document.getElementById('carPlate').value || "Không rõ";
+        let now = new Date();
+        let dateStr = now.toLocaleDateString('vi-VN') + ' - ' + now.toLocaleTimeString('vi-VN');
+
+        document.getElementById('imgDate').innerText = dateStr;
+        document.getElementById('imgCarName').innerText = carName;
+        document.getElementById('imgCarPlate').innerText = carPlate;
+
+        let imgHtml = "";
+        let grandTotal = 0;
+        cart.forEach(item => {
+            let sub = item.qty * item.price;
+            grandTotal += sub;
+            let displayName = item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
+            imgHtml += `<tr>
+                <td style="padding: 6px; border: 1px solid #ddd;">${displayName}</td>
+                <td style="padding: 6px; border: 1px solid #ddd; text-align:center;">${item.qty}</td>
+                <td style="padding: 6px; border: 1px solid #ddd; text-align:right;">${sub.toLocaleString('vi-VN')}</td>
+            </tr>`;
+        });
+
+        document.getElementById('imgTableBody').innerHTML = imgHtml;
+        document.getElementById('imgGrandTotal').innerText = grandTotal.toLocaleString('vi-VN');
+
+        let previewArea = document.getElementById('billPreviewArea');
+
+        // Sử dụng html2canvas để chụp ảnh khu vực ẩn
+        html2canvas(previewArea, { scale: 2 }).then(canvas => {
+            // Chuyển canvas thành ảnh base64
+            let imageUrl = canvas.toDataURL('image/png');
+            let resultImg = document.getElementById('resultImage');
+            resultImg.src = imageUrl;
+            
+            // Hiển thị vùng kết quả
+            document.getElementById('resultContainer').style.display = 'block';
+            
+            // Cuộn màn hình đến chỗ xem ảnh
+            resultImg.scrollIntoView({ behavior: 'smooth' });
+        }).catch(err => {
+            alert("Lỗi tạo ảnh: " + err);
+        });
+    }
+
