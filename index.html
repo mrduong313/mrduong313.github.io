@@ -271,3 +271,12 @@ Công thợ 100"></textarea>
 
 </body>
 </html>
+function editItem(index) {
+  let item = cartData[index];
+  // Đưa tên, số lượng, giá ngược lại vào ô input cú pháp bên trên
+  document.getElementById('input-syntax').value = `${item.name} ${item.qty} ${item.price}`;
+  // Xóa dòng cũ đi để người dùng bấm "Thêm vào bảng" sau khi sửa xong
+  cartData.splice(index, 1);
+  renderTable();
+  updateTotal();
+}
