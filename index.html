@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sửa Xe Dương Anh - Quản Lý & Xuất Hóa Đơn</    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>Sửa Xe Dương Anh - Quản Lý & Xuất Hóa Đơn</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background: #eef2f7; margin: 0; padding: 10px; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #d9534f; }
@@ -86,7 +87,7 @@ Công thợ 100"></textarea>
                 <th>Tên Hàng / Dịch Vụ</th>
                 <th style="width: 45px;">SL</th>
                 <th style="width: 85px;">Đơn Giá</th>
-                <th style="width: 95px;">Thành Tiền</th>
+                <th style="width: 110px;">Thành Tiền</th>
             </tr>
         </thead>
         <tbody id="cartTableBody">
@@ -141,7 +142,7 @@ Công thợ 100"></textarea>
 </div>
 
 <script>
-    let cart = [];
+    let cartData = [];
 
     function addAllFromText() {
         let text = document.getElementById('bulkInput').value.trim();
@@ -180,41 +181,54 @@ Công thợ 100"></textarea>
             }
 
             if (name) {
-                cart.push({ name: name, qty: qty, price: price });
+                cartData.push({ name: name, qty: qty, price: price });
             }
         });
 
         document.getElementById('bulkInput').value = "";
-        renderCart();
+        renderTable();
+        updateTotal();
     }
 
-    function renderCart() {
+    function renderTable() {
         let tbody = document.getElementById('cartTableBody');
-        if (cart.length === 0) {
+        if (cartData.length === 0) {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">Chưa có mặt hàng nào</td></tr>`;
-            document.getElementById('grandTotal').innerText = "0";
             return;
         }
 
         let html = "";
-        let total = 0;
-        cart.forEach(item => {
+        cartData.forEach((item, index) => {
             let subtotal = item.qty * item.price;
-            total += subtotal;
             html += `<tr>
                 <td>${item.name}</td>
                 <td>${item.qty}</td>
                 <td>${item.price.toLocaleString('vi-VN')}</td>
-                <td><b>${subtotal.toLocaleString('vi-VN')}</b></td>
+                <td>
+                    <b>${subtotal.toLocaleString('vi-VN')}</b>
+                    <button onclick="removeItem(${index})" style="float: right; background: #dc3545; color: white; border: none; border-radius: 4px; width: 22px; height: 22px; font-weight: bold; cursor: pointer; font-size: 12px; line-height: 1;">×</button>
+                </td>
             </tr>`;
         });
-
         tbody.innerHTML = html;
+    }
+
+    function updateTotal() {
+        let total = 0;
+        cartData.forEach(item => {
+            total += item.qty * item.price;
+        });
         document.getElementById('grandTotal').innerText = total.toLocaleString('vi-VN');
     }
 
+    function removeItem(index) {
+        cartData.splice(index, 1);
+        renderTable();
+        updateTotal();
+    }
+
     function exportBillImage() {
-        if (cart.length === 0) {
+        if (cartData.length === 0) {
             alert("Chưa có món hàng nào trong giỏ để xuất hóa đơn!");
             return;
         }
@@ -230,7 +244,7 @@ Công thợ 100"></textarea>
 
         let imgHtml = "";
         let grandTotal = 0;
-        cart.forEach(item => {
+        cartData.forEach(item => {
             let sub = item.qty * item.price;
             grandTotal += sub;
             let displayName = item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
@@ -259,23 +273,15 @@ Công thợ 100"></textarea>
 
     function clearCart() {
         if (confirm("Làm mới để tính hóa đơn xe tiếp theo?")) {
-            cart = [];
+            cartData = [];
             document.getElementById('carName').value = "";
             document.getElementById('carPlate').value = "";
             document.getElementById('resultContainer').style.display = 'none';
-            renderCart();
+            renderTable();
+            updateTotal();
         }
     }
 </script>
 
 </body>
 </html>
-function editItem(index) {
-  let item = cartData[index];
-  // Đưa tên, số lượng, giá ngược lại vào ô input cú pháp bên trên
-  document.getElementById('input-syntax').value = `${item.name} ${item.qty} ${item.price}`;
-  // Xóa dòng cũ đi để người dùng bấm "Thêm vào bảng" sau khi sửa xong
-  cartData.splice(index, 1);
-  renderTable();
-  updateTotal();
-}
