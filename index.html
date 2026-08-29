@@ -53,7 +53,7 @@
     <h2>🔧 Sửa Xe Dương Anh</h2>
     <div class="sub-title">Núi Sập, Thoại Sơn, An Giang<br>SĐT: 0942.313.001</div>
 
-    <div class="section-title">Nhập Nhanh Từ Danh Sách</div>
+    <div class="section-title">Thông Tin Hóa Đơn</div>
 
     <div class="form-group">
         <label style="color: #d9534f;">Tên xe:</label>
@@ -63,11 +63,14 @@
     <div class="form-group">
         <label style="color: #d9534f;">Biển số xe:</label>
         <input type="text" id="carPlate" placeholder="Ví dụ: 67B1-123.45...">
-    </div>    <div class="form-group">
-        <label style="color: #d9534f;">Ngân hàng & Số tài khoản:</label>
-        <input type="text" id="bankInfo" placeholder="Ví dụ: VCB: 0942313001 - NGUYEN VAN A">
     </div>
 
+    <div class="form-group">
+        <label style="color: #d9534f;">Ngân hàng & Số tài khoản:</label>
+        <input type="text" id="bankInfo" value="Sacombank: 070103003278 - Duong van ty anh">
+    </div>
+
+    <div class="section-title">Nhập Nhanh Từ Danh Sách</div>
 
     <div class="checkbox-group">
         <input type="checkbox" id="shortPrice" checked>
@@ -111,9 +114,10 @@ Công thợ 100"></textarea>
         <img id="resultImage" alt="Hóa đơn sửa xe">
     </div>
 
-    <button class="btn-danger" onclick="clearCart()" style="margin-top: 8px;">🔄 Làm Mới / Hóa Đơn Mới</button>
+    <button class="btn-danger" onclick="clearCart()" style="margin-top: 8px;">🔄 Tạo Hóa Đơn Mới (Làm Trống)</button>
 </div>
 
+<!-- KHUNG RENDER ẢNH THỰC TẾ -->
 <div id="billPreviewArea">
     <div style="text-align:center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 10px;">
         <h3 style="margin:0; color: #d9534f; font-size: 20px; text-transform:uppercase;">SỬA XE DƯƠNG ANH</h3>
@@ -137,9 +141,16 @@ Công thợ 100"></textarea>
         <tbody id="imgTableBody">
         </tbody>
     </table>
-    <div style="text-align: right; font-size: 14px; font-weight: bold; border-top: 2px solid #333; padding-top: 8px; margin-bottom: 15px;">
+    <div style="text-align: right; font-size: 14px; font-weight: bold; border-top: 2px solid #333; padding-top: 8px; margin-bottom: 8px;">
         TỔNG CỘNG: <span id="imgGrandTotal"></span> VNĐ
     </div>
+    
+    <!-- GẮN CỨNG THÔNG TIN NGÂN HÀNG TRỰC TIẾP VÀO KHUNG RENDER -->
+    <div style="border-top: 1px dashed #bbb; padding-top: 8px; margin-bottom: 8px; font-size: 12px;">
+        <b>STK Thanh toán:</b><br>
+        <span style="font-weight: bold; color: #d9534f;">Sacombank: 070103003278 - Duong van ty anh</span>
+    </div>
+
     <div style="text-align: center; font-size: 12px; font-style: italic; color: #555; border-top: 1px dashed #ccc; padding-top: 8px;">
         Cảm ơn quý khách và hẹn gặp lại!
     </div>
@@ -239,6 +250,7 @@ Công thợ 100"></textarea>
 
         let carName = document.getElementById('carName').value || "Không rõ";
         let carPlate = document.getElementById('carPlate').value || "Không rõ";
+        
         let now = new Date();
         let dateStr = now.toLocaleDateString('vi-VN') + ' - ' + now.toLocaleTimeString('vi-VN');
 
@@ -262,9 +274,7 @@ Công thợ 100"></textarea>
         document.getElementById('imgTableBody').innerHTML = imgHtml;
         document.getElementById('imgGrandTotal').innerText = grandTotal.toLocaleString('vi-VN');
 
-        let previewArea = document.getElementById('billPreviewArea');
-
-        html2canvas(previewArea, { scale: 2 }).then(canvas => {
+        html2canvas(document.getElementById('billPreviewArea'), { scale: 2 }).then(canvas => {
             let imageUrl = canvas.toDataURL('image/png');
             let resultImg = document.getElementById('resultImage');
             resultImg.src = imageUrl;
@@ -276,14 +286,15 @@ Công thợ 100"></textarea>
     }
 
     function clearCart() {
-        if (confirm("Làm mới để tính hóa đơn xe tiếp theo?")) {
-            cartData = [];
-            document.getElementById('carName').value = "";
-            document.getElementById('carPlate').value = "";
-            document.getElementById('resultContainer').style.display = 'none';
-            renderTable();
-            updateTotal();
-        }
+        cartData = [];
+        document.getElementById('carName').value = "";
+        document.getElementById('carPlate').value = "";
+        document.getElementById('bulkInput').value = "";
+        document.getElementById('bankInfo').value = "Sacombank: 070103003278 - Duong van ty anh";
+        document.getElementById('resultContainer').style.display = 'none';
+        renderTable();
+        updateTotal();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>
 
